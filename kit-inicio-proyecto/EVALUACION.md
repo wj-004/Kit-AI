@@ -2,6 +2,27 @@
 
 La comparación de herramientas y la evaluación con un agente responden preguntas distintas. No convertir bytes, líneas o caracteres en tokens estimados ni atribuir porcentajes de ahorro sin mediciones del entorno.
 
+## Ejecución breve y lectura de fuentes — 2026-11-10
+
+Se comparó el kit 1.4.0 de `1e2ff97` con la versión 1.5.0 de esta entrega, instalada desde sus archivos reales. Fixture sintético Go: corregir cantidades cero en un carrito, manteniendo API, pruebas existentes y criterios completos en EVAL-001. El pedido refiere al ID del plan, sin pedir releer el requerimiento original. Modelo `gpt-6.1-sol`, esfuerzo `xhigh` y CLI `codex-cli 0.166.0-alpha.6`; no se cambiaron entre variantes.
+
+| Mediana de dos ejecuciones por versión | 1.4.0 | 1.5.0 final |
+| --- | ---: | ---: |
+| Tiempo total, segundos | 86.0 | 61.8 |
+| Primer cambio Go, incluidas pruebas, segundos | 48.0 | 34.8 |
+| Comandos ejecutados | 19.0 | 15.0 |
+| Tokens de entrada acumulados, incluida caché | 263152.5 | 157433.5 |
+| Tokens de salida | 4770.5 | 3100.5 |
+| Ejecuciones con relectura observada del original | 2 de 2 | 0 de 2 |
+
+Tiempos individuales: 1.4.0, [84.071, 87.867]; 1.5.0 final, [55.562, 67.981]. La reducción observada de la mediana fue 28.1% en tiempo y 35.0% en tokens de salida para este caso. Las cuatro ejecuciones principales pasaron la aceptación independiente; ambas versiones conservaron el plan válido, la tarea HECHO y los catorce campos. Los contadores de entrada son acumulados y contienen caché; no se equiparan a palabras, precio ni ahorro general.
+
+Se conservan dos ejecuciones intermedias: la primera revisión breve mejoró tiempo pero releyó un original en una de ellas. Ese hallazgo motivó colocar la prohibición al principio de AGENTS.md y devolver `readingPolicy` junto al contexto de la tarea; después se ejecutaron dos copias nuevas de la versión final. El orden inicial fue ABBA; las repeticiones finales nuevas se realizaron tras la corrección, conservando los controles anteriores. No es una muestra amplia ni una nueva secuencia ABBA completa.
+
+[Resultados estructurados, fixture, controles, comandos y ejecuciones intermedias](EVALUACION_RESULTADOS.json). Los eventos con razonamientos del modelo permanecen fuera del kit. Faltan casos de funcionalidades, permisos y proyectos grandes antes de generalizar el resultado.
+
+Verificación funcional de la entrega: 62 pruebas correctas con permiso para loopback; sintaxis JavaScript correcta. El helper Python de validación de skills no pudo ejecutarse por falta de PyYAML; se validaron sus metadatos YAML y la política de invocación automática con Ruby/Psych, y se comprobaron las referencias locales modificadas. No se agregó una dependencia al producto.
+
 ## Verificación de rutas por perfil — 2026-11-09
 
 Cambio de rutas, incorporado al kit 1.4.0: Laravel conserva `src/`; Go prepara `internal/` y `cmd/`; Flutter prepara `lib/`. Base mantiene `src/` provisional hasta confirmar el stack. Se actualizaron prompt, perfiles, flujo y documentos generados; se conserva el esquema 1 del plan y no se generan aplicaciones. La versión final integra también los cambios remotos de evidencia visual y microinteracciones de 1.3.0.
@@ -65,7 +86,7 @@ PY
 
 Para comparar pruebas, fijar la misma selección existente en ambas versiones, capturar resultado y duración por separado y declarar pruebas nuevas que solo tiene el candidato. No interpretar suites con distinta cobertura como una comparación directa de velocidad.
 
-## Evaluación pendiente con un agente
+## Evaluación ampliada con un agente
 
 Elegir tareas reales o fixtures anonimizadas del mismo repositorio, sin desarrollar una aplicación adicional para medir el kit. Preparar antes de los ensayos un commit base, solicitudes, fuentes confirmadas, alcance, criterios y pruebas de aceptación independientes de la solución. No completar incógnitas durante una rama por inferencia.
 
@@ -88,4 +109,4 @@ Una fila por ejecución, guardada en el informe principal del ensayo y enlazada 
 | --- | --- | --- | --- | --- | --- | --- |
 | Completar con una ejecución real | Registrar | Medir | Medir | Medir o N/D | Medir o N/D | Revisar el resultado y enlazar evidencia |
 
-Faltan las seis ejecuciones reales de los tres casos, su aceptación, tiempos totales/de pruebas, llamadas, contexto y contadores de tokens disponibles. Hasta realizarlas no hay una medición de ahorro del agente. No duplicar este informe en fichas, decisiones y tareas: enlazar la evidencia principal con un resumen.
+El ensayo de arriba cubre una corrección sintética pequeña. Sigue pendiente completar la comparación ampliada de los tres casos de este procedimiento con aceptación, tiempos, llamadas y contadores disponibles. La mejora observada en ese fixture no demuestra ahorro general del agente. No duplicar este informe en fichas, decisiones y tareas: enlazar la evidencia principal con un resumen.

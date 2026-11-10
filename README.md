@@ -12,7 +12,7 @@ El agente consulta las fuentes, los requisitos y el stack al comenzar cada proye
 
 La [guía del kit](kit-inicio-proyecto/README.md) explica la instalación, el formato del plan, los comandos y sus límites.
 
-La preparación releva e instala. La ejecución consulta una tarea autorizada y sus referencias; la reanudación contrasta su evidencia con cambios recientes. El [flujo común](kit-inicio-proyecto/skills/plan-maestro-desarrollo-sistema/references/flujo-de-trabajo.md) evita repetir el arranque o duplicar estado/documentación.
+La preparación lee las fuentes y arma el plan. Después, AGENTS.md y el contexto de una tarea guían la ejecución; las referencias técnicas se abren cuando hacen falta. Los requerimientos originales se releen solo por pedido expreso del usuario. Las skills de arquitectura, planificación y visor se aplican según el cambio, sin cargarlas todas para una corrección corriente. El [flujo ampliado](kit-inicio-proyecto/skills/plan-maestro-desarrollo-sistema/references/flujo-de-trabajo.md) se consulta para preparar, reorganizar o retomar con información insuficiente.
 
 ## Instalación desde una copia del repositorio
 
@@ -38,7 +38,7 @@ python3 -B .agents/skills/manage-project-roadmap/scripts/roadmap.py task INI-001
 python3 -B .agents/skills/manage-project-roadmap/scripts/roadmap.py report --status EN_CURSO --summary
 ```
 
-La consulta valida el plan completo antes de devolver una tarea con todos sus campos y resúmenes de dependencias. No escribe archivos. Los comandos anteriores siguen disponibles; --summary conserva errores y contadores sin volcar el listado. La versión 1.4.0 mantiene el esquema 1 y adapta las rutas al perfil tecnológico. Domain exige entidades, valores y agregados según identidad, invariantes y consistencia del modelo; no crea clases vacías por plantilla.
+La consulta valida el plan completo antes de devolver una tarea con todos sus campos y resúmenes de dependencias. No escribe archivos. Los comandos anteriores siguen disponibles; --summary conserva errores y contadores sin volcar el listado. La versión 1.5.0 mantiene el esquema 1 y las rutas por stack, con una entrada breve y detalles bajo consulta. Domain conserva entidades, valores y agregados según identidad, invariantes y consistencia del modelo.
 
 ## Skills incluidas
 
@@ -65,10 +65,10 @@ node --check skills/manage-project-roadmap/assets/roadmap-tree.js
 
 Node se usa para comprobar la sintaxis JavaScript; no es una dependencia de ejecución del kit. Las pruebas HTTP requieren permitir servidores temporales en loopback.
 
-El ZIP es opcional; la instalación y las pruebas funcionan directamente desde el repositorio. Contiene los mismos 35 recursos del kit y un `MANIFEST.sha256`. Para generarlo:
+El ZIP es opcional; la instalación y las pruebas funcionan directamente desde el repositorio. Contiene los recursos del kit y un `MANIFEST.sha256`. Para generarlo:
 
 ```sh
 python3 -B scripts/package_kit.py --output ../dist/kit-inicio-proyecto.zip
 ```
 
-[EVALUACION.md](kit-inicio-proyecto/EVALUACION.md) conserva mediciones de la CLI y un procedimiento para comparar corrección pequeña, CRUD y permisos con un agente. Esas evaluaciones siguen pendientes; no se afirma ahorro de tokens no medido.
+[EVALUACION.md](kit-inicio-proyecto/EVALUACION.md) conserva mediciones de la CLI y de ensayos aislados con Codex, con su alcance y límites. Un resultado de una tarea no se presenta como ahorro general para todos los proyectos.

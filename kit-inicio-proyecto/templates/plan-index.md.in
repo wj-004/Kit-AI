@@ -16,7 +16,9 @@ La autorización inicial cubre preparación y planificación. Las propuestas de 
 
 Usar [el esquema común](../../.agents/skills/plan-maestro-desarrollo-sistema/references/plan-schema.md) y [la plantilla de tarea](../plantillas/tarea.md). IDs estables; dependencias por comas. Estados: PENDIENTE, EN_CURSO, PARCIAL, BLOQUEADO, HECHO y EXCLUIDO. Capas: SOLICITADO, PROPUESTO y EXCLUIDO.
 
-El [flujo de trabajo](../../.agents/skills/plan-maestro-desarrollo-sistema/references/flujo-de-trabajo.md) define preparación, ejecución, reanudación, ubicaciones principales, pruebas y evidencia. Aplicar el recorrido pertinente. Esta carpeta conserva el único estado de las tareas, con IDs e historia; no repetirlo en decisiones, ficha o tableros.
+AGENTS.md y el contexto de cada tarea guían la ejecución corriente. El [flujo de trabajo](../../.agents/skills/plan-maestro-desarrollo-sistema/references/flujo-de-trabajo.md) amplía preparación, reorganización o reanudación con información insuficiente; consultar solo el procedimiento necesario. Esta carpeta conserva el único estado de las tareas, con IDs e historia; no repetirlo en decisiones, ficha o tableros.
+
+Los requisitos originales se analizan al relevar el proyecto y se trasladan a tareas con reglas y criterios suficientes. Una vez armado este plan, releer las fuentes originales solo por pedido expreso del usuario; consultar las dudas del plan sin reiniciar el relevamiento.
 
 ## Especificaciones
 

@@ -14,7 +14,7 @@ EXTENSIONS = {'.md', '.in', '.py', '.json', '.yaml', '.html', '.css', '.js'}
 
 
 def resources() -> list[Path]:
-    files = [KIT / 'README.md', KIT / 'PROMPT_MAESTRO.md', KIT / 'EVALUACION.md']
+    files = [KIT / 'README.md', KIT / 'PROMPT_MAESTRO.md', KIT / 'EVALUACION.md', KIT / 'EVALUACION_RESULTADOS.json']
     for folder in ('scripts', 'skills', 'templates', 'tests'):
         for path in (KIT / folder).rglob('*'):
             if path.is_symlink():

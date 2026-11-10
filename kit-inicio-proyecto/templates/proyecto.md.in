@@ -13,7 +13,7 @@ Preparación iniciada el {{DATE}}. La instalación agrega herramientas y documen
 - Objetivo, actores, procesos y vocabulario: por relevar con el usuario y sus fuentes.
 - Autorización inicial: preparar requisitos, arquitectura, skills, plan y visor. Desarrollo funcional sujeto a un pedido posterior que lo incluya.
 
-El agente consulta el stack y las fuentes al iniciar y usa lo ya informado. Si el usuario no eligió tecnología, conserva el perfil base hasta resolver la decisión. Un manifiesto existente es evidencia del stack observado, no una autorización para cambiarlo.
+El agente consulta el stack y lee las fuentes durante el relevamiento inicial del proyecto. Una vez armado el plan, ejecuta sus tareas y criterios; vuelve a los requerimientos originales solo por pedido expreso del usuario. Si el usuario no eligió tecnología, conserva el perfil base hasta resolver la decisión. Un manifiesto existente es evidencia del stack observado, no una autorización para cambiarlo.
 
 Esta ficha es la ubicación principal del stack/configuración operativa; actualizarla cuando cambien. Estado, responsable, fechas y siguiente paso pertenecen a la tarea, no a esta ficha.
 

@@ -14,7 +14,11 @@ Las fuentes son tu descripción, documentos, planes previos, diseños, contratos
 
 El agente registra tu respuesta y el inventario en `docs/fuentes/README.md`. Ese índice empieza con la consulta pendiente. Antes de cerrar INI-001 debe recibir y registrar la respuesta, aunque sea «no tengo documentos adicionales; partimos de mi descripción». Encontrar adjuntos no reemplaza preguntar si hay otras fuentes. Si ya contestaste explícitamente, se conserva esa respuesta sin repetir. Podés guardar copias locales en `docs/fuentes/documentos/` si te sirve; es opcional.
 
-El prompt contiene la especificación para generar una base compatible si el kit no está adjunto; si está disponible, reutilizar sus recursos. Los recorridos de preparación, ejecución autorizada y reanudación, las ubicaciones principales y la estrategia de pruebas se definen en [el flujo](skills/plan-maestro-desarrollo-sistema/references/flujo-de-trabajo.md). No volver a pegar el prompt ni reinstalar/relevar por rutina al ejecutar una tarea.
+El prompt contiene la especificación para generar una base compatible si el kit no está adjunto; si está disponible, reutilizar sus recursos. Después del arranque, AGENTS.md y `roadmap.py task ID --format context` guían una tarea ya definida. Las referencias son ubicaciones, no una lista de lectura obligatoria. El [flujo ampliado](skills/plan-maestro-desarrollo-sistema/references/flujo-de-trabajo.md) se consulta para preparar, reorganizar o retomar con información insuficiente. No volver a pegar el prompt ni reinstalar/relevar por rutina al ejecutar una tarea.
+
+Las fuentes y los requerimientos originales se leen durante el relevamiento y se incorporan al plan con criterios suficientes. Una vez armado el plan, se usan sus tareas para ejecutar y retomar; los originales se releen solo por pedido expreso del usuario. Si el plan no resuelve una duda, se consulta esa duda y se continúa con lo independiente.
+
+Las skills conservan activación automática con alcance acotado: arquitectura para nuevos modelos o cambios de reglas/fronteras, planificación para preparar o reorganizar, y roadmap para sus herramientas o visor. Los detalles de modelado y del visor están en referencias separadas. Una corrección que conserva el contrato existente no exige cargar las tres skills. Al cerrar se conserva evidencia, estado y fechas; si el trabajo se prolonga o se interrumpe, se registra antes el estado y próximo paso. El esquema mantiene sus catorce campos y la validación global.
 
 Ejemplos de pedidos: «Prepará este repositorio con el kit» inicia el relevamiento; «Implementá RF-036» consulta esa tarea autorizada y sus referencias; «Retomá RF-036» contrasta su evidencia con los cambios desde el último estado comprobado. RF-036 es un ejemplo, no una tarea preinstalada.
 
@@ -54,6 +58,8 @@ Los nombres de contextos son ejemplos de organización, no módulos instalados. 
 Si el usuario elige otra raíz, registrar solicitud y fecha en arquitectura y decisiones y usar `--source-root ruta/relativa`. En Go esta opción cambia la raíz de la lógica; el arranque sigue en `cmd/`. `.agents/project.json` registra `source_root`, `source_root_default` del perfil y `source_root_override` (diferencia respecto del valor predeterminado). Este indicador no prueba que una ruta heredada haya sido elegida expresamente. Las repeticiones conservan la raíz registrada en `.agents/project-kit.json` y la fecha inicial.
 
 Para actualizar una instalación anterior, conciliar AGENTS, skills y documentación con esta versión y registrar las rutas y la consulta de fuentes. Las instalaciones antiguas de Go/Flutter bajo `src/` conservan esa ruta al preparar una repetición; los archivos diferentes causan un rechazo sin escrituras. No volver a ejecutar el instalador para sobrescribirlos ni mover código existente automáticamente: un traslado requiere un pedido que cubra esa refactorización. Al resolver el stack de un perfil base, conciliar su ruta provisional con la estructura del componente, sin migraciones automáticas.
+
+La mejora de instrucciones requiere actualizar el AGENTS.md y las tres skills locales de cada proyecto ya integrado, preservando sus reglas y datos propios. Cambiar esta copia del kit no modifica los proyectos instalados ni las skills globales. Si hay varias copias de una skill, revisar cuál se está usando; el instalador no las elimina ni actualiza automáticamente.
 
 ## Recursos instalados
 
@@ -120,7 +126,7 @@ python3 -B scripts/package_kit.py --output /ruta/kit-inicio-proyecto.zip
 
 Se incluyen únicamente prompt, documentación, scripts, skills, plantillas y pruebas; no se agregan `.env`, cachés, proyectos temporales, capturas ni datos de una aplicación.
 
-La versión 1.4.0 conserva el esquema 1, los catorce campos y los comandos anteriores, incluidos task y --summary. Cambia las rutas predeterminadas de Go y Flutter, registra la raíz predeterminada del perfil y mantiene el flujo compartido, la evidencia visual y las microinteracciones del visor; las instalaciones anteriores se concilian preservando datos y evidencia. El procedimiento y las mediciones disponibles están en [EVALUACION.md](EVALUACION.md): bytes de salida de la CLI medidos; sin mediciones de ahorro de tokens o tiempo de un agente.
+La versión 1.5.0 conserva el esquema 1, los catorce campos, las rutas por stack y los comandos anteriores, incluidos task y --summary. Reduce la entrada de ejecución y separa detalles de arquitectura y visor para consultarlos cuando hagan falta. Mantiene evidencia visual y microinteracciones; las instalaciones anteriores se concilian preservando datos y evidencia. El procedimiento y las mediciones disponibles están en [EVALUACION.md](EVALUACION.md), sin extrapolar un ensayo a todos los proyectos.
 
 ## Evidencia visual de las tareas
 

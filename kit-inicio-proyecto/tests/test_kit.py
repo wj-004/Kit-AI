@@ -789,6 +789,17 @@ class InstallerTest(unittest.TestCase):
             self.install()
         self.assertFalse(self.target.exists())
 
+    def test_missing_detail_reference_blocks_installation_before_target_creation(self):
+        for index, relative in enumerate(('arquitectura-hexagonal-ddd/references/diseno-y-modelado.md',
+                                          'manage-project-roadmap/references/herramientas.md')):
+            with self.subTest(resource=relative):
+                copied = self.root / ('incomplete-kit-' + str(index))
+                shutil.copytree(KIT, copied, ignore=shutil.ignore_patterns('__pycache__'))
+                (copied / 'skills' / relative).unlink()
+                with patch.object(initializer, 'KIT', copied), self.assertRaisesRegex(ValueError, 'Recurso ausente'):
+                    self.install()
+                self.assertFalse(self.target.exists())
+
 
 class PackageTest(unittest.TestCase):
     def test_reproducible_archive_can_be_moved_extracted_and_used_without_source_paths(self):
