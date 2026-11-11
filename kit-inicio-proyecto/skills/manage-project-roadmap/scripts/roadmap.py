@@ -135,9 +135,19 @@ def write_document(output: Path, document: str) -> None:
             temporary.unlink(missing_ok=True)
 
 
+def open_viewer(url: str) -> None:
+    import webbrowser
+    try:
+        opened = webbrowser.open(url, new=2)
+    except (OSError, webbrowser.Error):
+        opened = False
+    if not opened:
+        print(f'No se pudo abrir el navegador automáticamente. Abrí: {url}', flush=True)
+
+
 def main(argv=None) -> int:
     parser = argparse.ArgumentParser(description='Validar, consultar y visualizar el plan maestro del proyecto.')
-    parser.add_argument('command', choices=('check', 'report', 'task', 'tree', 'serve'))
+    parser.add_argument('command', choices=('check', 'report', 'task', 'tree', 'serve', 'open'))
     parser.add_argument('task_id', nargs='?', help='ID obligatorio para task.')
     parser.add_argument('--root', type=Path, default=Path.cwd(), help='Raíz del proyecto; por defecto, directorio actual.')
     parser.add_argument('--plan-dir', type=Path)
@@ -146,12 +156,17 @@ def main(argv=None) -> int:
     parser.add_argument('--json', action='store_true')
     parser.add_argument('--format', choices=('context', 'json'), help='Formato de task; por defecto context. --json es un alias.')
     parser.add_argument('--summary', action='store_true', help='Resumen de check/report sin tareas ni aristas; conserva todos los errores.')
-    parser.add_argument('--port', type=int, default=8788)
+    parser.add_argument('--port', type=int, help='Puerto de serve (8788) u open (automático). 0 elige uno libre.')
     parser.add_argument('--interval', type=float, default=1.0)
     parser.add_argument('--allow-edit', action='store_true', help='Autorizar edición local con revisión explícita en una rama Git distinta de main/master.')
+    parser.add_argument('--static', action='store_true', help='Con open: exportar y abrir una copia sin servidor ni sincronización.')
     args = parser.parse_args(argv)
-    if args.allow_edit and args.command != 'serve':
-        parser.error('--allow-edit solo se admite con serve.')
+    if args.allow_edit and (args.command not in {'serve', 'open'} or args.static):
+        parser.error('--allow-edit solo se admite con serve u open sin --static.')
+    if args.static and args.command != 'open':
+        parser.error('--static solo se admite con open.')
+    if args.port is None:
+        args.port = 0 if args.command == 'open' else 8788
     if args.command == 'task':
         if not args.task_id:
             parser.error('task requiere un ID, por ejemplo: task RF-036 --format context')
@@ -210,12 +225,15 @@ def main(argv=None) -> int:
             raise ValueError('La salida no puede ser un enlace simbólico.')
         if args.interval < 0.1 or not 0 <= args.port <= 65535:
             raise ValueError('Usar intervalo >= 0.1 segundos y puerto entre 0 y 65535.')
-        if args.command == 'serve':
+        if args.command == 'serve' or (args.command == 'open' and not args.static):
             from roadmap_server import serve
-            return serve(root, plan_dir, output, args.port, args.interval, allow_edit=args.allow_edit)
+            return serve(root, plan_dir, output, args.port, args.interval, allow_edit=args.allow_edit,
+                         open_browser=args.command == 'open')
         graph, _ = snapshot(root, plan_dir, output)
         write_document(output, render(graph))
         print(f"Visor generado: {len(graph['tasks'])} tareas, {len(graph['edges'])} dependencias.\n{output}")
+        if args.command == 'open':
+            open_viewer(output.as_uri())
     except (OSError, ValueError) as error:
         parser.exit(1, f'{error}\n')
     return 0

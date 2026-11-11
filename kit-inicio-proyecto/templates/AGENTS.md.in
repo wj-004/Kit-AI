@@ -8,8 +8,12 @@ Para una tarea con ID, consultar primero y una sola vez:
 `python3 -B .agents/skills/manage-project-roadmap/scripts/roadmap.py task ID --format context`
 Ya valida el plan. Leer la tarea y el código afectado; abrir referencias técnicas si falta un dato necesario o aparece una contradicción. Las referencias son ubicaciones, no una lista de lectura obligatoria.
 
+Antes de implementar cualquier tarea, incluso una corrección breve, guardarla en el plan como EN_CURSO con Responsable, Fecha de inicio y Última actualización reales. Si no existe, crearla con sus catorce campos y el alcance autorizado antes de tocar la implementación. Al retomar, conservar la fecha de inicio original y actualizar responsable, estado y próximo paso según corresponda.
+
 El plan aporta los requisitos y criterios de ejecución. Si no alcanza, consultar la duda y avanzar en lo independiente.
 
 Una corrección que conserva contratos usa la arquitectura existente. Aplicar arquitectura para nuevos modelos o cambios de fronteras/reglas; planificación para preparar o reorganizar el plan, o retomar sin contexto suficiente; roadmap para sus herramientas o visor. No activar las tres skills por implementar una tarea.
 
-Ejecutar las pruebas pertinentes. Al cerrar, actualizar estado, responsable, fechas, evidencia y próximo paso, conservando los catorce campos. HECHO exige criterios comprobados y dependencias cerradas. Si el trabajo se prolonga o se interrumpe, registrar antes EN_CURSO/PARCIAL y el siguiente paso. Tras editar el plan, validar una vez con `roadmap.py check`; repetir controles si hay cambios o fallos nuevos.
+Ejecutar las pruebas pertinentes. Al cerrar o interrumpir, actualizar estado, evidencia y próximo paso, conservando los catorce campos y la historia. HECHO exige criterios comprobados y dependencias cerradas. Tras editar el plan, validar con `roadmap.py check`; repetir controles si hay cambios o fallos nuevos.
+
+Para mostrar el árbol, ejecutar `python3 -B ver-plan.py`: abre el navegador y elige un puerto libre. No pedir al usuario que asigne un puerto. Ctrl+C detiene la sincronización; `--static` abre una copia sin servidor.

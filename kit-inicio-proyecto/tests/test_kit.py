@@ -791,7 +791,9 @@ class InstallerTest(unittest.TestCase):
 
     def test_missing_detail_reference_blocks_installation_before_target_creation(self):
         for index, relative in enumerate(('arquitectura-hexagonal-ddd/references/diseno-y-modelado.md',
-                                          'manage-project-roadmap/references/herramientas.md')):
+                                          'manage-project-roadmap/references/herramientas.md',
+                                          'manage-project-roadmap/scripts/roadmap_edit.py',
+                                          'manage-project-roadmap/assets/roadmap-context.js')):
             with self.subTest(resource=relative):
                 copied = self.root / ('incomplete-kit-' + str(index))
                 shutil.copytree(KIT, copied, ignore=shutil.ignore_patterns('__pycache__'))

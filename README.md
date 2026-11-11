@@ -12,6 +12,8 @@ El agente consulta las fuentes, los requisitos y el stack al comenzar cada proye
 
 La [guía del kit](kit-inicio-proyecto/README.md) explica la instalación, el formato del plan, los comandos y sus límites.
 
+Antes de implementar cualquier tarea, incluso una corrección breve, el agente debe guardarla EN_CURSO con responsable y fecha de inicio reales. El validador comprueba esos campos; la secuencia previa a la implementación es una obligación del flujo, no un bloqueo automático del editor.
+
 La preparación lee las fuentes y arma el plan. Después, AGENTS.md y el contexto de una tarea guían la ejecución; las referencias técnicas se abren cuando hacen falta. Los requerimientos originales se releen solo por pedido expreso del usuario. Las skills de arquitectura, planificación y visor se aplican según el cambio, sin cargarlas todas para una corrección corriente. El [flujo ampliado](kit-inicio-proyecto/skills/plan-maestro-desarrollo-sistema/references/flujo-de-trabajo.md) se consulta para preparar, reorganizar o retomar con información insuficiente.
 
 ## Instalación desde una copia del repositorio
@@ -38,7 +40,7 @@ python3 -B .agents/skills/manage-project-roadmap/scripts/roadmap.py task INI-001
 python3 -B .agents/skills/manage-project-roadmap/scripts/roadmap.py report --status EN_CURSO --summary
 ```
 
-La consulta valida el plan completo antes de devolver una tarea con todos sus campos y resúmenes de dependencias. No escribe archivos. Los comandos anteriores siguen disponibles; --summary conserva errores y contadores sin volcar el listado. La versión 1.5.0 mantiene el esquema 1 y las rutas por stack, con una entrada breve y detalles bajo consulta. Domain conserva entidades, valores y agregados según identidad, invariantes y consistencia del modelo.
+La consulta valida el plan completo antes de devolver una tarea con todos sus campos y resúmenes de dependencias. No escribe archivos. Los comandos anteriores siguen disponibles; --summary conserva errores y contadores sin volcar el listado. La versión 1.6.0 mantiene el esquema 1 y las rutas por stack, con una entrada breve y detalles bajo consulta. Domain conserva entidades, valores y agregados según identidad, invariantes y consistencia del modelo.
 
 ## Skills incluidas
 
@@ -50,7 +52,7 @@ La consulta valida el plan completo antes de devolver una tarea con todos sus ca
 
 ## Visor del plan maestro
 
-El visor ofrece búsqueda, filtros, detalle de tareas, zoom y cadenas de dependencias. Puede exportarse como HTML o sincronizarse con los documentos mediante un servidor local.
+El visor ofrece búsqueda, filtros, detalle de tareas, zoom y cadenas de dependencias. Puede exportarse como HTML o sincronizarse con los documentos mediante un servidor local. Desde un proyecto actualizado, ejecutá `python3 -B ver-plan.py`: abre el navegador y elige un puerto libre. Ctrl+C lo detiene; `--static` abre una copia sin servidor. La PR #3 agrega edición revisada y contexto de tareas para Codex.
 
 ![Visor del plan maestro en un proyecto de demostración](docs/visor-plan-maestro.jpg)
 
@@ -61,9 +63,11 @@ Desde `kit-inicio-proyecto`:
 ```sh
 python3 -B -m unittest discover -s tests -v
 node --check skills/manage-project-roadmap/assets/roadmap-tree.js
+node --check skills/manage-project-roadmap/assets/roadmap-context.js
+node --test tests/roadmap-context.test.js
 ```
 
-Node se usa para comprobar la sintaxis JavaScript; no es una dependencia de ejecución del kit. Las pruebas HTTP requieren permitir servidores temporales en loopback.
+Node se usa para comprobar la sintaxis y las pruebas JavaScript; no es una dependencia de ejecución del kit. Las pruebas HTTP requieren permitir servidores temporales en loopback.
 
 El ZIP es opcional; la instalación y las pruebas funcionan directamente desde el repositorio. Contiene los recursos del kit y un `MANIFEST.sha256`. Para generarlo:
 

@@ -133,3 +133,15 @@ Una fila por ejecución, guardada en el informe principal del ensayo y enlazada 
 | Completar con una ejecución real | Registrar | Medir | Medir | Medir o N/D | Medir o N/D | Revisar el resultado y enlazar evidencia |
 
 Los ensayos de arriba cubren correcciones sintéticas pequeñas en Go y Laravel. Sigue pendiente completar la comparación ampliada de los tres casos de este procedimiento con aceptación, tiempos, llamadas y contadores disponibles. La mejora observada en ese fixture no demuestra ahorro general del agente. No duplicar este informe en fichas, decisiones y tareas: enlazar la evidencia principal con un resumen.
+
+
+## Verificación de la versión 1.6.0 — 2026-11-11
+
+Se integró la PR #3 conservando la consulta compacta y la política de lectura de 1.5.0. Se corrigió el rechazo de rutas válidas bajo alias del sistema en macOS; los enlaces dentro del plan siguen rechazados. El contexto para Codex respeta las skills necesarias para el cambio y las autorizaciones existentes.
+
+- Python 3.9: `python3 -B -m unittest discover -s tests`, 84 pruebas aprobadas. Incluyen instalación sin sobrescrituras, edición revisada, revisiones desactualizadas, autorizaciones HTTP, alias del sistema y apertura con puerto automático.
+- JavaScript: 6 pruebas aprobadas con `node --test tests/roadmap-context.test.js`; sintaxis válida de roadmap-tree.js y roadmap-context.js.
+- Inspección visual en un proyecto temporal: selección de tarea, edición, propuesta para Codex, vuelta al formulario conservando el borrador, revisión del diff, autorización, guardado y actualización del árbol. No se envió un prompt a Codex ni se modificó un proyecto real.
+- YAML de las tres skills y metadatos validado con Ruby/Psych; el validador Python de skills requiere PyYAML, ausente en este entorno. ZIP reproducible verificado por la suite.
+
+El registro EN_CURSO con responsable e inicio antes de implementar es obligatorio en las instrucciones, incluido el caso de correcciones breves. El parser comprueba el estado actual y sus campos; no observa las escrituras de código ni prueba el orden histórico de las transiciones. Esta verificación no mide tiempos ni tokens del agente para 1.6.0; las mediciones anteriores corresponden a sus versiones y fixtures declarados.

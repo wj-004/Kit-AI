@@ -18,6 +18,8 @@ Usar [el esquema común](../../.agents/skills/plan-maestro-desarrollo-sistema/re
 
 AGENTS.md y el contexto de cada tarea guían la ejecución corriente. El [flujo de trabajo](../../.agents/skills/plan-maestro-desarrollo-sistema/references/flujo-de-trabajo.md) amplía preparación, reorganización o reanudación con información insuficiente; consultar solo el procedimiento necesario. Esta carpeta conserva el único estado de las tareas, con IDs e historia; no repetirlo en decisiones, ficha o tableros.
 
+Antes de implementar cualquier tarea, incluso una corrección breve, guardarla EN_CURSO con responsable e inicio reales. Crear primero la tarea si falta; al retomar, conservar el inicio original.
+
 Los requisitos originales se analizan al relevar el proyecto y se trasladan a tareas con reglas y criterios suficientes. Una vez armado este plan, releer las fuentes originales solo por pedido expreso del usuario; consultar las dudas del plan sin reiniciar el relevamiento.
 
 ## Especificaciones
@@ -35,7 +37,7 @@ python3 -B .agents/skills/manage-project-roadmap/scripts/roadmap.py check
 python3 -B .agents/skills/manage-project-roadmap/scripts/roadmap.py task INI-001 --format context
 python3 -B .agents/skills/manage-project-roadmap/scripts/roadmap.py report --status EN_CURSO --summary
 python3 -B .agents/skills/manage-project-roadmap/scripts/roadmap.py tree
-python3 -B .agents/skills/manage-project-roadmap/scripts/roadmap.py serve --port 8788
+python3 -B ver-plan.py
 ```
 
-task valida todo el plan, conserva los campos de una tarea y resume sus dependencias; no escribe ni ejecuta el contenido. `--format json` ofrece el recorte estructurado. report --json conserva el reporte completo para diagnóstico. El HTML se abre sin red; el servidor imprime su URL y mantiene el último plan válido. Ver opciones y límites en [roadmap](../../.agents/skills/manage-project-roadmap/SKILL.md).
+task valida todo el plan, conserva los campos de una tarea y resume sus dependencias; no escribe ni ejecuta el contenido. `--format json` ofrece el recorte estructurado. report --json conserva el reporte completo para diagnóstico. `ver-plan.py` abre el navegador con puerto automático y sincronización; Ctrl+C lo detiene. `--static` abre una copia sin servidor. Ver opciones y límites en [roadmap](../../.agents/skills/manage-project-roadmap/SKILL.md).

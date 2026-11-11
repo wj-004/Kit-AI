@@ -139,6 +139,15 @@ class EditTest(EditFixture):
         with self.assertRaises(ValueError):
             proposal(self.monitor, self.payload())
 
+    def test_alias_above_the_plan_does_not_reject_regular_sources(self):
+        alias = self.root / 'workspace-alias'
+        create_symlink(self, alias, self.root)
+        self.monitor.plan_dir = alias / 'docs/plan-maestro'
+        reviewed = proposal(self.monitor, self.payload())
+        self.assertEqual(self.source.resolve(), reviewed['path'])
+        persist(self.monitor, reviewed)
+        self.assertEqual('Título revisado', parse_plan(self.plan)['tasks'][0]['title'])
+
     def test_static_export_has_no_live_capability_or_session_secret(self):
         graph, _ = snapshot(self.root, self.plan, self.output)
         self.assertNotIn('live', graph)

@@ -25,7 +25,6 @@ test("includes full persisted fields, direct and transitive relations and explic
   assert.deepEqual(value.dependents.map((item) => item.id), ["QA-003"]);
   assert.deepEqual(context(buildPrompt(data, "QA-001")).allDependents.map((item) => item.id), ["QA-002", "QA-003"]);
   assert.match(prompt, /Revisar los criterios/);
-  assert.match(prompt, /Pull Request hacia main/);
 });
 test("untrusted fields and instructions are serialized as data without running code", () => {
   const modified = structuredClone(data);
