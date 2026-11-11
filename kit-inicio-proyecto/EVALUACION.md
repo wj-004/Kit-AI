@@ -2,6 +2,29 @@
 
 La comparación de herramientas y la evaluación con un agente responden preguntas distintas. No convertir bytes, líneas o caracteres en tokens estimados ni atribuir porcentajes de ahorro sin mediciones del entorno.
 
+## Comparación Laravel 1.4.0 y 1.5.0 — 2026-11-10
+
+Cuatro ejecuciones aisladas, en orden ABBA, con los commits publicados `1e2ff97` (1.4.0) y `f2e8c0e` (1.5.0), sin modificar sus instrucciones. Misma tarea EVAL-001, código, criterios completos del plan y dependencias fijadas por el mismo composer.lock. Modelo `gpt-6.1-sol`, esfuerzo `xhigh`, CLI `codex-cli 0.166.0-alpha.6`. PHP 8.4.11, Laravel Framework 12.72.0 y PHPUnit 11.5.57.
+
+La corrección exige rechazar cantidad cero en CartLine y en POST /api/cart/total, conservando precio cero, carrito vacío, errores por campo, API y totales válidos. La aplicación Laravel es temporal: usa arquitectura hexagonal en src/Cart, contenedor y validación HTTP reales. Las 8 pruebas iniciales pasan. Antes de corregir, las 13 verificaciones independientes detectan exactamente cuatro fallos de cantidad cero y ningún error del entorno. Las dependencias se prepararon una vez; Composer y el calentamiento de Laravel quedan fuera del tiempo medido.
+
+| Mediana de dos ejecuciones por versión | 1.4.0 | 1.5.0 |
+| --- | ---: | ---: |
+| Tiempo total, segundos | 100.7 | 64.3 |
+| Primer cambio PHP, incluidas pruebas, segundos | 56.0 | 39.9 |
+| Comandos registrados | 15.0 | 10.5 |
+| Tokens de entrada acumulados | 270649.5 | 170577.5 |
+| De ellos, cacheados | 244672.0 | 153344.0 |
+| Entrada no cacheada | 25977.5 | 17233.5 |
+| Tokens de salida | 5811.0 | 3551.5 |
+| Ejecuciones con relectura observada del original | 1 de 2 | 0 de 2 |
+
+Tiempos individuales: 1.4.0, [96.81, 104.622]; 1.5.0, [64.356, 64.165]. Reducciones observadas de medianas en este caso: 36.2% en tiempo, 37.0% en entrada acumulada y 38.9% en salida. Los contadores provienen de Codex; la entrada incluye caché y no se interpreta como precio.
+
+Las cuatro soluciones pasaron las mismas 13 verificaciones independientes y conservaron las 8 pruebas iniciales, composer.json/composer.lock y el plan válido con EVAL-001 HECHO y 14 campos. El núcleo no incorporó imports Laravel. Las regresiones adicionales escritas por cada agente varían: los totales, incluida aceptación, fueron [34, 31] para 1.4.0 y [32, 32] para 1.5.0. Se compara el trabajo completo con los mismos criterios, sin atribuir velocidad de una suite a otra con distinta cobertura adicional.
+
+[Datos, fixture, aceptación independiente, versiones, controles y comandos](EVALUACION_RESULTADOS.json), sección `laravel_comparison_2026_11_10`. El ensayo cubre una corrección pequeña sin persistencia, permisos o frontend; faltan casos mayores para generalizar. Las pruebas HTTP se basan en las [herramientas oficiales de Laravel](https://laravel.com/framework/docs/12.x/http-tests).
+
 ## Ejecución breve y lectura de fuentes — 2026-11-10
 
 Se comparó el kit 1.4.0 de `1e2ff97` con la versión 1.5.0 de esta entrega, instalada desde sus archivos reales. Fixture sintético Go: corregir cantidades cero en un carrito, manteniendo API, pruebas existentes y criterios completos en EVAL-001. El pedido refiere al ID del plan, sin pedir releer el requerimiento original. Modelo `gpt-6.1-sol`, esfuerzo `xhigh` y CLI `codex-cli 0.166.0-alpha.6`; no se cambiaron entre variantes.
@@ -92,7 +115,7 @@ Elegir tareas reales o fixtures anonimizadas del mismo repositorio, sin desarrol
 
 | Caso | Contrato y aceptación que deben fijarse antes | Estado de la evaluación A/B |
 | --- | --- | --- |
-| Corrección pequeña | Error reproducible, comportamiento esperado, límites y prueba de regresión del fallo. | No ejecutada. |
+| Corrección pequeña | Error reproducible, comportamiento esperado, límites y prueba de regresión del fallo. | Ensayos mínimos Go y Laravel documentados arriba; falta ampliación en proyectos reales. |
 | CRUD acotado | Operaciones/campos, invariantes, errores, persistencia y permisos aplicables, con pruebas de recorridos y estados. | No ejecutada. |
 | Cambio de permisos | Actores/recursos, matriz esperada, aislamiento y casos permitidos/denegados, con pruebas positivas y negativas. | No ejecutada. |
 
@@ -109,4 +132,4 @@ Una fila por ejecución, guardada en el informe principal del ensayo y enlazada 
 | --- | --- | --- | --- | --- | --- | --- |
 | Completar con una ejecución real | Registrar | Medir | Medir | Medir o N/D | Medir o N/D | Revisar el resultado y enlazar evidencia |
 
-El ensayo de arriba cubre una corrección sintética pequeña. Sigue pendiente completar la comparación ampliada de los tres casos de este procedimiento con aceptación, tiempos, llamadas y contadores disponibles. La mejora observada en ese fixture no demuestra ahorro general del agente. No duplicar este informe en fichas, decisiones y tareas: enlazar la evidencia principal con un resumen.
+Los ensayos de arriba cubren correcciones sintéticas pequeñas en Go y Laravel. Sigue pendiente completar la comparación ampliada de los tres casos de este procedimiento con aceptación, tiempos, llamadas y contadores disponibles. La mejora observada en ese fixture no demuestra ahorro general del agente. No duplicar este informe en fichas, decisiones y tareas: enlazar la evidencia principal con un resumen.
