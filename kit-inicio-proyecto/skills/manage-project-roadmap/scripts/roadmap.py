@@ -34,6 +34,7 @@ def metadata(root: Path) -> dict:
         raise ValueError('Configuración de proyecto inválida.')
     return {'projectName': config.get('name', root.name),
             'projectId': hashlib.sha256(str(root.resolve()).encode('utf-8')).hexdigest()[:16],
+            'projectPath': str(root.resolve()),
             'generatedAt': datetime.now().astimezone().isoformat(timespec='seconds')}
 
 
@@ -54,7 +55,7 @@ def task_context(report: dict, task_id: str, root: Path, plan_dir: Path) -> dict
         raise ValueError(f'No existe la tarea {task_id} en el plan.')
 
     def location(task):
-        return os.path.relpath(plan_dir / task['source'], root)
+        return Path(os.path.relpath(plan_dir / task['source'], root)).as_posix()
 
     selected = by_id[task_id]
     dependencies = [
@@ -65,7 +66,7 @@ def task_context(report: dict, task_id: str, root: Path, plan_dir: Path) -> dict
     return {'valid': True, 'schemaVersion': report['schemaVersion'], 'fieldNames': list(FIELDS),
             'readingPolicy': READING_POLICY,
             'task': {**selected, 'sourcePath': location(selected)}, 'dependencies': dependencies,
-            'references': {'planIndex': os.path.relpath(plan_dir / 'README.md', root),
+            'references': {'planIndex': Path(os.path.relpath(plan_dir / 'README.md', root)).as_posix(),
                            'instructions': 'AGENTS.md', 'project': 'docs/proyecto.md',
                            'architecture': 'docs/arquitectura/README.md', 'decisions': 'docs/decisiones/README.md'}}
 
@@ -102,7 +103,7 @@ def snapshot(root: Path, plan_dir: Path, output: Path) -> tuple[dict, dict]:
         raise ValueError('Plan inválido:\n- ' + '\n- '.join(report['errors']))
     graph = public_report(report, metadata(root))
     for task in graph['tasks']:
-        task['sourceUrl'] = quote(os.path.relpath(plan_dir / task['source'], output.parent), safe='/')
+        task['sourceUrl'] = quote(Path(os.path.relpath(plan_dir / task['source'], output.parent)).as_posix(), safe='/')
         task['images'] = [{'alt': image['alt'], 'src': data_uri(plan_dir / image['path'], plan_dir)} for image in task['images']]
     return graph, report['sources']
 
@@ -111,7 +112,7 @@ def render(graph: dict) -> str:
     payload = json.dumps(graph, ensure_ascii=False).replace('&', '\\u0026').replace('<', '\\u003c').replace('>', '\\u003e')
     replacements = {
         '/*__ROADMAP_CSS__*/': (ASSETS / 'roadmap-tree.css').read_text(encoding='utf-8'),
-        '/*__ROADMAP_JS__*/': (ASSETS / 'roadmap-tree.js').read_text(encoding='utf-8'),
+        '/*__ROADMAP_JS__*/': (ASSETS / 'roadmap-context.js').read_text(encoding='utf-8') + '\n' + (ASSETS / 'roadmap-tree.js').read_text(encoding='utf-8'),
         '__ROADMAP_DATA__': payload,
         '__PROJECT_NAME__': html.escape(graph['projectName']),
         '__GENERATED_AT__': html.escape(graph['generatedAt']),
@@ -147,7 +148,10 @@ def main(argv=None) -> int:
     parser.add_argument('--summary', action='store_true', help='Resumen de check/report sin tareas ni aristas; conserva todos los errores.')
     parser.add_argument('--port', type=int, default=8788)
     parser.add_argument('--interval', type=float, default=1.0)
+    parser.add_argument('--allow-edit', action='store_true', help='Autorizar edición local con revisión explícita en una rama Git distinta de main/master.')
     args = parser.parse_args(argv)
+    if args.allow_edit and args.command != 'serve':
+        parser.error('--allow-edit solo se admite con serve.')
     if args.command == 'task':
         if not args.task_id:
             parser.error('task requiere un ID, por ejemplo: task RF-036 --format context')
@@ -208,7 +212,7 @@ def main(argv=None) -> int:
             raise ValueError('Usar intervalo >= 0.1 segundos y puerto entre 0 y 65535.')
         if args.command == 'serve':
             from roadmap_server import serve
-            return serve(root, plan_dir, output, args.port, args.interval)
+            return serve(root, plan_dir, output, args.port, args.interval, allow_edit=args.allow_edit)
         graph, _ = snapshot(root, plan_dir, output)
         write_document(output, render(graph))
         print(f"Visor generado: {len(graph['tasks'])} tareas, {len(graph['edges'])} dependencias.\n{output}")

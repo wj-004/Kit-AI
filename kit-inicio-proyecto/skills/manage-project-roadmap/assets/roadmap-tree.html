@@ -16,7 +16,7 @@
     <form id="filters" class="filters" role="search">
       <label class="search">Buscar tarea<input id="search" type="search" placeholder="ID o título de la tarea" autofocus autocomplete="off"></label>
       <label>Módulo<select id="module"><option value="">Todos los módulos</option></select></label>
-      <label>Alcance<select id="scope"><option value="">Todas las capas</option><option value="SOLICITADO">Solicitado</option><option value="PROPUESTO">Propuesto</option><option value="EXCLUIDO">Excluido</option></select></label>
+      <label title="Solicitado: pedido confirmado. Propuesto: pendiente de autorización. Excluido: fuera del alcance por decisión explícita.">Alcance autorizado<select id="scope"><option value="">Todos</option><option value="SOLICITADO">Solicitado</option><option value="PROPUESTO">Propuesto</option><option value="EXCLUIDO">Excluido</option></select></label>
       <button id="reset" class="quiet" type="button">Restablecer</button>
     </form>
     <div class="workspace">
@@ -49,8 +49,11 @@
       <p>Si la evidencia de una tarea incluye imágenes, el detalle las muestra de a una en <strong>Evidencia visual</strong>; usá ‹ y › para recorrerlas y hacé clic en la imagen para ampliarla. Ampliada, también podés recorrerlas con las flechas del teclado.</p>
       <p>Para activar la actualización automática, ejecutá desde la raíz del proyecto:</p><pre>python3 -B .agents/skills/manage-project-roadmap/scripts/roadmap.py serve --port 8788</pre>
       <p>Abrí <code>http://127.0.0.1:8788/visualizacion.html</code>. Al guardar cambios en tareas, estados o dependencias, el árbol se actualiza en aproximadamente dos segundos, conservando búsqueda, filtros, selección y zoom. El indicador superior informa la conexión. Si el plan tiene errores, se conserva la última versión válida y se muestra el motivo; al corregirlos, vuelve a sincronizar.</p>
-      <p>El servidor funciona mientras este comando siga ejecutándose; Ctrl+C lo detiene. Para exportar una copia que funcione sin servidor, ejecutá el comando con <code>tree</code> en lugar de <code>serve</code> y abrí <code>docs/plan-maestro/visualizacion.html</code>. La copia local informa que no tiene sincronización. El visor no modifica las especificaciones.</p>
+      <p>El servidor funciona mientras este comando siga ejecutándose; Ctrl+C lo detiene. Para exportar una copia que funcione sin servidor, ejecutá el comando con <code>tree</code> en lugar de <code>serve</code> y abrí <code>docs/plan-maestro/visualizacion.html</code>. La copia local informa que no tiene sincronización. Para habilitar edición local, iniciá serve con --allow-edit en una rama Git, revisá el diff y autorizá cada guardado. La exportación estática prepara propuestas sin escribir archivos.</p>
 
+      <p>Desde el detalle podés <strong>Editar tarea</strong>, <strong>Dar instrucción a Codex</strong>, <strong>Copiar contexto</strong> y <strong>Abrir Codex</strong>. <strong>Alcance autorizado</strong> corresponde al campo Capa del esquema: Solicitado es un pedido confirmado, Propuesto espera autorización y Excluido quedó fuera por una decisión explícita. No describe las capas de arquitectura. <strong>Descripción y alcance</strong> corresponde a Alcance; el resto de campos conserva el esquema del plan. ID, estado y dependencias son de consulta. Usá <strong>Volver al formulario</strong> desde una propuesta para seguir editándola, o <strong>Volver al detalle</strong> y <strong>Cerrar</strong> para regresar al árbol. Los borradores duran mientras la página siga abierta; cerrar el diálogo no los guarda. Una revisión nueva del plan no sobrescribe el borrador; ante un conflicto copiá la propuesta y recargá para revisarla sobre la versión vigente.</p>
+      <p>Para habilitar guardados, usá <code>serve --allow-edit --port 8788</code> en una rama Git distinta de main/master. Elegí <strong>Validar y revisar cambios</strong>, revisá el diff y marcá la autorización antes de <strong>Guardar cambio autorizado</strong>. Cambiar un campo exige otra revisión. El servidor valida el plan completo y rechaza revisiones desactualizadas; guarda únicamente la tarea seleccionada. Revisá después <code>git diff</code> y prepará una Pull Request hacia main para aceptar el cambio.</p>
+      <p>El prompt contiene la tarea completa, prerrequisitos, dependientes, criterios, referencias e instrucción adicional. <strong>Copiar prompt</strong> usa el portapapeles; si no está disponible, selecciona el texto para copiarlo manualmente. <strong>Abrir Codex</strong> abre un chat local en la carpeta del proyecto y prepara el prompt del nodo seleccionado en el campo de mensaje; revisalo y envialo desde la app. Requiere Codex instalado y asociado al protocolo; el navegador puede pedir abrir la app. Si no se abre, copiá el prompt y pegalo en Codex. En otro equipo, regenerá el visor desde la ubicación local del proyecto. Los campos del plan se tratan como datos; el visor no ejecuta sus instrucciones.</p>
     </div>
     <div class="dialog-footer"><button id="help-done">Entendido</button></div>
   </dialog>
@@ -59,6 +62,12 @@
     <div class="dialog-body"><img id="image-full" alt=""></div>
     <div id="image-nav" class="dialog-footer evidence-nav"><button id="image-prev" aria-label="Imagen anterior">‹</button><output id="image-count"></output><button id="image-next" aria-label="Imagen siguiente">›</button></div>
   </dialog>
+  <dialog id="task-action" aria-labelledby="action-title">
+    <div class="dialog-header"><h2 id="action-title"></h2><button id="action-close" type="button">Cerrar</button></div>
+    <div id="action-body" class="dialog-body"></div>
+    <div id="action-footer" class="dialog-footer"></div>
+  </dialog>
+  <p id="action-notice" class="action-notice" role="status" aria-live="polite" hidden></p>
   <noscript>Activá JavaScript en el navegador para explorar el árbol. Las especificaciones Markdown conservan todo el contenido del plan.</noscript>
   <script type="application/json" id="roadmap-data">__ROADMAP_DATA__</script>
   <script>/*__ROADMAP_JS__*/</script>

@@ -4,6 +4,8 @@
   const $ = (id) => document.getElementById(id);
   const labels = {PENDIENTE: "Pendiente", EN_CURSO: "En curso", PARCIAL: "Parcial", HECHO: "Hecho", BLOQUEADO: "Bloqueado", EXCLUIDO: "Fuera del alcance"};
   const scopes = {SOLICITADO: "Solicitado", PROPUESTO: "Propuesto", EXCLUIDO: "Excluido"};
+  const scopeDescriptions = {SOLICITADO: "Pedido confirmado por el usuario.", PROPUESTO: "Propuesta pendiente de autorización para ejecutarse.", EXCLUIDO: "Fuera del alcance por una decisión explícita."};
+  const fieldLabel = (name) => name === "Capa" ? "Alcance autorizado" : name === "Alcance" ? "Descripción y alcance" : name;
   const colors = {PENDIENTE: "#65788c", EN_CURSO: "#245ca6", PARCIAL: "#996308", HECHO: "#18765b", BLOQUEADO: "#b13d48", EXCLUIDO: "#7a559d"};
   const backgrounds = {PENDIENTE: "#eef1f5", EN_CURSO: "#e9f1ff", PARCIAL: "#fff3d8", HECHO: "#e5f5eb", BLOQUEADO: "#fdebed", EXCLUIDO: "#f2ebfa"};
   function colorize(node, status) {
@@ -30,6 +32,162 @@
     return node;
   };
   const dot = (status) => {const node = element("span", undefined, "dot"); node.style.setProperty("--status", colors[status]); node.setAttribute("aria-hidden", "true"); return node;};
+  const drafts = new Map(), instructions = new Map(), proposalInstructions = new Map();
+  let actionTask = null, actionTrigger = null, actionBusy = false;
+  const promptFor = (id, instruction = "", proposed = null) => RoadmapContext.buildPrompt(data, id, instruction, proposed);
+  const canPersist = () => Boolean(data.live?.allowEdit && location.protocol === "http:" && ["127.0.0.1", "localhost"].includes(location.hostname));
+  function notice(message) {
+    $("action-notice").textContent = message; $("action-notice").hidden = false;
+  }
+  function codexLink(taskId, getPrompt = () => promptFor(taskId)) {
+    const url = RoadmapContext.codexProjectUrl(data, getPrompt());
+    if (!url) {
+      const unavailable = element("button", "Abrir Codex"); unavailable.type = "button"; unavailable.disabled = true;
+      unavailable.title = "Regenerá el visor desde el proyecto para incluir su carpeta local.";
+      return unavailable;
+    }
+    const link = element("a", "Abrir Codex", "action-link");
+    link.href = url; link.title = `Abrir ${data.projectName} en Codex: ${data.projectPath}`;
+    link.addEventListener("click", () => notice(`Se solicitó abrir Codex en ${data.projectPath} con el contexto de ${taskId}. Revisá el mensaje antes de enviarlo.`));
+    return link;
+  }
+  async function copyText(text, fallback) {
+    try {
+      if (!navigator.clipboard?.writeText) throw new Error("Clipboard unavailable");
+      await navigator.clipboard.writeText(text); notice("Contexto copiado. Pegalo en Codex para continuar.");
+    } catch {
+      if (fallback) {fallback.focus(); fallback.select(); notice("Seleccionamos el prompt. Usá Ctrl+C o ⌘+C para copiarlo.");}
+      else openInstruction(actionTask || selected, text);
+    }
+  }
+  function openAction(taskId, title) {
+    if (!$("task-action").open) actionTrigger = document.activeElement;
+    actionTask = taskId;
+    $("action-title").textContent = `${title} · ${taskId}`;
+    $("action-body").replaceChildren(); $("action-footer").replaceChildren();
+    if (!$("task-action").open) $("task-action").showModal();
+  }
+  function closeAction() {
+    if (actionBusy) return;
+    $("task-action").close(); actionTask = null;
+    (actionTrigger?.isConnected ? actionTrigger : $("detail").querySelector("button") || $("search")).focus({preventScroll: true});
+  }
+  $("action-close").addEventListener("click", closeAction);
+  $("task-action").addEventListener("cancel", (event) => {event.preventDefault(); closeAction();});
+  function labeledInput(label, value, multiline = true) {
+    const wrapper = element("label", label, "action-field"), input = element(multiline ? "textarea" : "input");
+    input.value = value; input.required = true;
+    if (multiline) input.rows = label.includes("Prompt") ? 14 : 3;
+    wrapper.append(input); return {wrapper, input};
+  }
+  function openInstruction(taskId, fallbackText = null, proposed = null, initialInstruction = "", fromEditor = false) {
+    if (!tasks.has(taskId)) {notice("La tarea ya no existe. Actualizá la selección."); return;}
+    openAction(taskId, "Dar instrucción a Codex");
+    const task = tasks.get(taskId);
+    $("action-body").append(element("p", `${task.title} · ${labels[task.status]}`));
+    const instructionValue = proposed ? (proposalInstructions.get(taskId) ?? initialInstruction) : (initialInstruction || instructions.get(taskId) || "");
+    const instruction = labeledInput("Instrucción adicional", instructionValue); instruction.input.required = false;
+    const preview = labeledInput("Prompt para copiar", proposed ? promptFor(taskId, instructionValue, proposed) : (fallbackText || promptFor(taskId, instructionValue)));
+    preview.input.readOnly = true;
+    $("action-body").append(instruction.wrapper, preview.wrapper,
+      element("p", `Abrir Codex prepara este prompt en un chat local en ${data.projectPath || "la carpeta del proyecto (regenerá el visor para identificarla)"}; revisalo y envialo desde la app. Si el navegador no abre Codex, copiá el prompt y pegalo en el proyecto.`));
+    const openCodex = codexLink(taskId, () => preview.input.value);
+    instruction.input.addEventListener("input", () => {
+      (proposed ? proposalInstructions : instructions).set(taskId, instruction.input.value);
+      preview.input.value = promptFor(taskId, instruction.input.value, proposed);
+      if (openCodex.tagName === "A") openCodex.href = RoadmapContext.codexProjectUrl(data, preview.input.value);
+    });
+    const copy = element("button", "Copiar prompt"); copy.type = "button";
+    copy.addEventListener("click", () => copyText(preview.input.value, preview.input));
+    const back = element("button", fromEditor ? "Volver al formulario" : "Volver al detalle"); back.type = "button";
+    back.addEventListener("click", () => fromEditor && tasks.has(taskId) ? openEditor(taskId) : closeAction());
+    $("action-footer").append(back, copy, openCodex);
+    instruction.input.focus();
+  }
+  async function editRequest(operation, payload) {
+    if (!canPersist()) throw new Error("La copia estática y el servidor sin --allow-edit no guardan cambios.");
+    const sessionResponse = await fetch("/__roadmap__/session", {cache: "no-store", signal: AbortSignal.timeout(5000)});
+    if (!sessionResponse.ok) throw new Error("No se pudo autorizar la sesión local de edición.");
+    const session = await sessionResponse.json();
+    if (session.projectId !== data.projectId) throw new Error("El servidor corresponde a otro proyecto.");
+    const response = await fetch(`/__roadmap__/edit/${operation}`, {
+      method: "POST", headers: {"Content-Type": "application/json", "X-Roadmap-Token": session.token},
+      body: JSON.stringify(payload), signal: AbortSignal.timeout(15000),
+    });
+    const result = await response.json();
+    if (!response.ok) throw new Error(result.error || `HTTP ${response.status}`);
+    return result;
+  }
+  function openEditor(taskId) {
+    const task = tasks.get(taskId);
+    openAction(taskId, "Editar tarea");
+    const base = {taskId, revision: data.revision || null};
+    const draft = drafts.get(taskId) || {title: task.title, fields: {...task.fields}, revision: base.revision};
+    drafts.set(taskId, draft);
+    const form = element("form"), message = element("p"); message.setAttribute("role", "status");
+    message.textContent = canPersist() ? "Revisá los cambios y autorizá el guardado local. Después revisá git diff y abrí una PR hacia main." : "Modo propuesta: no se escriben archivos. Podés copiar la edición propuesta para revisarla con Codex. Para guardar, iniciá serve --allow-edit en una rama Git.";
+    form.append(element("p", `ID: ${task.id} · Estado: ${task.status} · Dependencias: ${task.fields.Dependencias}. Estos datos se conservan. Agregá nuevas verificaciones al final de Evidencia actual para conservar su historia.`), message);
+    const title = labeledInput("Título", draft.title, false); title.input.maxLength = 500; form.append(title.wrapper);
+    const controls = new Map();
+    for (const name of data.fieldNames.filter((name) => name !== "Dependencias")) {
+      const control = labeledInput(fieldLabel(name), draft.fields[name]);
+      if (name === "Capa") control.wrapper.append(element("span", "Solicitado: pedido confirmado. Propuesto: pendiente de autorización. Excluido: fuera del alcance por decisión explícita."));
+      controls.set(name, control.input); form.append(control.wrapper);
+    }
+    const diff = element("pre", "", "edit-diff"); diff.hidden = true;
+    const authorization = element("label", undefined, "edit-authorization"), checkbox = element("input"); checkbox.type = "checkbox"; checkbox.disabled = true;
+    authorization.append(checkbox, element("span", "Revisé las diferencias y autorizo guardar este cambio local para revisión mediante Git y Pull Request."));
+    authorization.hidden = !canPersist(); form.append(diff, authorization); $("action-body").append(form);
+    const back = element("button", "Volver al detalle"), review = element("button", "Validar y revisar cambios"), save = element("button", "Guardar cambio autorizado"), copy = element("button", "Preparar propuesta para Codex");
+    for (const button of [back, review, save, copy]) button.type = "button";
+    back.addEventListener("click", closeAction);
+    review.hidden = save.hidden = !canPersist(); save.disabled = true;
+    $("action-footer").append(back, copy, review, save);
+    let approval = null, reviewedPayload = null;
+    function currentPayload() {
+      const fields = Object.fromEntries([...controls].filter(([name, input]) => input.value.trim() !== task.fields[name]).map(([name, input]) => [name, input.value.trim()]));
+      return {...base, revision: draft.revision, title: title.input.value.trim(), fields};
+    }
+    function invalidate() {
+      draft.title = title.input.value; draft.fields = Object.fromEntries([...controls].map(([name, input]) => [name, input.value]));
+      approval = null; reviewedPayload = null; save.disabled = true; checkbox.checked = false; checkbox.disabled = true; diff.hidden = true;
+    }
+    form.addEventListener("input", (event) => {if (event.target !== checkbox) invalidate();});
+    checkbox.addEventListener("change", () => {save.disabled = !checkbox.checked || !approval;});
+    const busy = (value) => {
+      actionBusy = value; $("action-close").disabled = value;
+      for (const input of [title.input, ...controls.values(), back, review, copy]) input.disabled = value;
+      checkbox.disabled = value || !approval; save.disabled = value || !approval || !checkbox.checked;
+    };
+    review.addEventListener("click", async () => {
+      if (!form.reportValidity()) return;
+      busy(true);
+      try {
+        const payload = currentPayload(), result = await editRequest("preview", payload);
+        reviewedPayload = payload; approval = result.approval; checkbox.checked = false;
+        diff.textContent = result.diff; diff.hidden = false;
+        message.textContent = `Plan completo válido. Archivo: ${result.source}. Rama: ${result.branch}. Revisá las diferencias antes de autorizar.`;
+        diff.scrollIntoView({block: "nearest"});
+      } catch (error) {approval = null; message.textContent = error.message;}
+      finally {busy(false);}
+    });
+    save.addEventListener("click", async () => {
+      if (!approval || !checkbox.checked || !reviewedPayload) return;
+      busy(true);
+      try {
+        const result = await editRequest("save", {...reviewedPayload, approval, authorized: true});
+        drafts.delete(taskId); proposalInstructions.delete(taskId); busy(false); closeAction(); notice(result.message);
+      } catch (error) {approval = null; checkbox.checked = false; message.textContent = error.message;}
+      finally {busy(false);}
+    });
+    copy.addEventListener("click", () => {
+      if (!form.reportValidity()) return;
+      const proposed = currentPayload();
+      const instruction = "Revisá esta propuesta de edición de la tarea. Validá el plan completo y prepará el diff para revisión antes de guardar.";
+      openInstruction(taskId, null, proposed, instruction, true);
+    });
+    form.addEventListener("submit", (event) => event.preventDefault()); title.input.focus();
+  }
   function closure(id, direction) {
     const found = new Set([id]), pending = [id];
     while (pending.length) {
@@ -232,11 +390,16 @@
     const module = data.modules.find((item) => item.id === task.module); body.append(element("p", module.title));
     if (chain || !visible.some((item) => item.id === task.id)) body.append(element("p", chain ? `Cadena completa de ${chain}; los filtros quedan suspendidos hasta salir.` : "Esta tarea quedó fuera de los filtros actuales."));
     const actions = element("div", undefined, "detail-actions"), branch = element("button", chain ? "Salir de la cadena" : "Ver cadena completa");
-    branch.addEventListener("click", () => {chain = chain ? null : task.id; render();}); actions.append(branch); body.append(actions);
+    branch.addEventListener("click", () => {chain = chain ? null : task.id; render();}); actions.append(branch);
+    const edit = element("button", "Editar tarea"), instruct = element("button", "Dar instrucción a Codex"), copy = element("button", "Copiar contexto");
+    edit.addEventListener("click", () => openEditor(task.id)); instruct.addEventListener("click", () => openInstruction(task.id));
+    copy.addEventListener("click", () => copyText(promptFor(task.id)));
+    actions.append(edit, instruct, copy, codexLink(task.id)); body.append(actions);
     if (task.images?.length) body.append(element("h3", "Evidencia visual"), imageGallery(task.images));
     body.append(relationSection("Requisitos", task.dependencies), relationSection("Dependientes", dependents.get(task.id)));
     for (const label of data.fieldNames) {
-      body.append(element("h3", label === "Dependencias" ? "Dependencias: texto del plan" : label), element("p", task.fields[label]));
+      body.append(element("h3", label === "Dependencias" ? "Dependencias: texto del plan" : fieldLabel(label)), element("p", task.fields[label]));
+      if (label === "Capa") body.append(element("p", scopeDescriptions[task.scope]));
     }
     body.append(element("h3", "Especificación fuente"));
     const source = element("a", `${task.source} · línea ${task.line}`); source.href = task.sourceUrl; source.target = "_blank"; source.rel = "noopener"; body.append(source);
