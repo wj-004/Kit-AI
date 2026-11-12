@@ -18,3 +18,29 @@ button{transition:background-color var(--quick) var(--ease),border-color var(--q
 dialog,dialog::backdrop{opacity:0;transition:opacity var(--quick) var(--ease),transform var(--quick) var(--ease),overlay var(--quick) allow-discrete,display var(--quick) allow-discrete}dialog{transform:translateY(8px)}dialog[open],dialog[open]::backdrop{opacity:1;transition-duration:var(--slow)}dialog[open]{transform:none}@starting-style{dialog[open],dialog[open]::backdrop{opacity:0}dialog[open]{transform:translateY(8px)}}
 
 .detail-actions{display:flex;flex-wrap:wrap;gap:7px}.detail-actions .action-link{width:100%;text-align:center}.action-link{display:inline-flex;align-items:center;justify-content:center;min-height:36px;padding:8px 12px;border:1px solid var(--line);border-radius:7px;text-decoration:none;color:#11695d;background:white;font-size:12px}.action-link:hover{background:#e8f4ef}.dialog-footer{gap:8px;flex-wrap:wrap}.action-field{display:flex;flex-direction:column;gap:7px;margin-top:18px;font-size:12px;font-weight:650}.action-field input,.action-field textarea{box-sizing:border-box;width:100%;padding:10px;border:1px solid #bacdd0;border-radius:7px;background:white;color:var(--ink);font:inherit;font-weight:400;line-height:1.5}.action-field textarea{resize:vertical;min-height:85px}.action-field textarea[readonly]{font-family:ui-monospace,monospace;font-size:11px;background:#f3f6f5}.edit-authorization{display:flex;gap:10px;align-items:start;margin-top:18px;font-size:12px;line-height:1.6}.edit-authorization input{margin-top:4px;flex-shrink:0}.edit-diff{max-height:300px;overflow:auto}.action-notice{position:fixed;bottom:16px;left:16px;right:16px;z-index:10;margin:0 auto;max-width:800px;padding:12px 16px;border:1px solid #75a197;border-radius:7px;background:#e8f4ef;color:#164c3d;font-size:12px;box-shadow:0 3px 12px #23433922;pointer-events:none}button:disabled{cursor:default;opacity:.55}.edit-authorization[hidden],.edit-diff[hidden],.action-notice[hidden]{display:none}
+
+/* Paleta compartida por tarjetas, conexiones y relaciones. */
+:root{--color-PENDIENTE:#65788c;--color-EN_CURSO:#245ca6;--color-PARCIAL:#996308;--color-HECHO:#18765b;--color-BLOQUEADO:#b13d48;--color-EXCLUIDO:#7a559d;--background-PENDIENTE:#eef1f5;--background-EN_CURSO:#e9f1ff;--background-PARCIAL:#fff3d8;--background-HECHO:#e5f5eb;--background-BLOQUEADO:#fdebed;--background-EXCLUIDO:#f2ebfa}
+.relation-list button,.relation-list button:hover{background:var(--status-bg);border-color:var(--status);color:var(--status)}
+.relation-list button:hover{box-shadow:inset 0 0 0 1px var(--status)}
+:root[data-theme=dark]{color-scheme:dark;--ink:#e4edef;--muted:#aabcc2;--line:#405258;--paper:#1b292e;--accent:#80d4be;--color-PENDIENTE:#bdcbd9;--color-EN_CURSO:#91baff;--color-PARCIAL:#f4cb73;--color-HECHO:#8ddfbb;--color-BLOQUEADO:#ff9ca5;--color-EXCLUIDO:#d2b0f2;--background-PENDIENTE:#293742;--background-EN_CURSO:#1e344f;--background-PARCIAL:#44371d;--background-HECHO:#1d3d33;--background-BLOQUEADO:#4a2a30;--background-EXCLUIDO:#392b47}
+[data-theme=dark] body{background:#111b1f}
+[data-theme=dark] button,[data-theme=dark] .topbar,[data-theme=dark] .workspace,[data-theme=dark] .detail,[data-theme=dark] .detail-header,[data-theme=dark] dialog,[data-theme=dark] .action-link{background:var(--paper)}
+[data-theme=dark] button:hover,[data-theme=dark] .action-link:hover{background:#30464a;border-color:#8aada5}
+[data-theme=dark] button:focus-visible,[data-theme=dark] input:focus-visible,[data-theme=dark] select:focus-visible,[data-theme=dark] a:focus-visible,[data-theme=dark] .viewport:focus-visible{outline-color:#80d4be}
+[data-theme=dark] button[aria-pressed=true]{background:#29483e}
+[data-theme=dark] .quiet{background:transparent}
+[data-theme=dark] .filters input,[data-theme=dark] .filters select,[data-theme=dark] .action-field input,[data-theme=dark] .action-field textarea{background:#142126;border-color:#567078;color:var(--ink)}
+[data-theme=dark] .action-field textarea[readonly],[data-theme=dark] .dialog-body pre,[data-theme=dark] .evidence-image img{background:#111b1f}
+[data-theme=dark] .viewport{background-color:#142226;background-image:radial-gradient(#3f5954 .8px,transparent .8px)}
+[data-theme=dark] .level-label{color:var(--muted)}
+[data-theme=dark] .detail-body a,[data-theme=dark] .action-link{color:var(--accent)}
+[data-theme=dark] #live-status{color:var(--color-HECHO)}
+[data-theme=dark] #live-status[data-mode=static]{color:var(--muted)}
+[data-theme=dark] #live-status[data-mode=connecting],[data-theme=dark] #live-status[data-mode=disconnected]{color:var(--color-PARCIAL)}
+[data-theme=dark] #live-status[data-mode=invalid]{color:var(--color-BLOQUEADO)}
+[data-theme=dark] .live-error{background:var(--background-BLOQUEADO);color:var(--color-BLOQUEADO);border-color:var(--color-BLOQUEADO)}
+[data-theme=dark] .action-notice{background:var(--background-HECHO);color:var(--color-HECHO);border-color:var(--color-HECHO)}
+[data-theme=dark] .state-card,[data-theme=dark] .state-card[aria-pressed=true],[data-theme=dark] .node,[data-theme=dark] .node:hover,[data-theme=dark] .node[aria-pressed=true],[data-theme=dark] .node.selected,[data-theme=dark] .list-task.selected,[data-theme=dark] .list-task[aria-pressed=true],[data-theme=dark] .relation-list button,[data-theme=dark] .relation-list button:hover{background:var(--status-bg);border-color:var(--status)}
+[data-theme=dark] .state-card[aria-pressed=false]{background:var(--paper)}
+[data-theme=dark] .badge{background:var(--status-bg);color:var(--status);border-color:var(--status)}

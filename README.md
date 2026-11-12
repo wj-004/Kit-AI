@@ -52,7 +52,7 @@ La consulta valida el plan completo antes de devolver una tarea con todos sus ca
 
 ## Visor del plan maestro
 
-El visor ofrece búsqueda, filtros, detalle de tareas, zoom y cadenas de dependencias. Puede exportarse como HTML o sincronizarse con los documentos mediante un servidor local. Desde un proyecto actualizado, ejecutá `python3 -B ver-plan.py`: abre el navegador y elige un puerto libre. Ctrl+C lo detiene; `--static` abre una copia sin servidor. La PR #3 agrega edición revisada y contexto de tareas para Codex.
+El visor ofrece búsqueda, filtros, detalle de tareas, zoom, cadenas de dependencias y tema oscuro. Los requisitos y dependientes muestran el color de su estado. Puede exportarse como HTML o sincronizarse con los documentos mediante un servidor local. Desde un proyecto actualizado, ejecutá `python3 -B ver-plan.py`: abre el navegador y elige un puerto libre. Ctrl+C lo detiene; `--static` abre una copia sin servidor. La PR #3 agrega edición revisada y contexto de tareas para Codex.
 
 ![Visor del plan maestro en un proyecto de demostración](docs/visor-plan-maestro.jpg)
 

@@ -6,8 +6,26 @@
   const scopes = {SOLICITADO: "Solicitado", PROPUESTO: "Propuesto", EXCLUIDO: "Excluido"};
   const scopeDescriptions = {SOLICITADO: "Pedido confirmado por el usuario.", PROPUESTO: "Propuesta pendiente de autorización para ejecutarse.", EXCLUIDO: "Fuera del alcance por una decisión explícita."};
   const fieldLabel = (name) => name === "Capa" ? "Alcance autorizado" : name === "Alcance" ? "Descripción y alcance" : name;
-  const colors = {PENDIENTE: "#65788c", EN_CURSO: "#245ca6", PARCIAL: "#996308", HECHO: "#18765b", BLOQUEADO: "#b13d48", EXCLUIDO: "#7a559d"};
-  const backgrounds = {PENDIENTE: "#eef1f5", EN_CURSO: "#e9f1ff", PARCIAL: "#fff3d8", HECHO: "#e5f5eb", BLOQUEADO: "#fdebed", EXCLUIDO: "#f2ebfa"};
+  const colors = Object.fromEntries(Object.keys(labels).map((status) => [status, `var(--color-${status})`]));
+  const backgrounds = Object.fromEntries(Object.keys(labels).map((status) => [status, `var(--background-${status})`]));
+  const systemTheme = matchMedia("(prefers-color-scheme: dark)");
+  let themePreference = null;
+  try {
+    const saved = localStorage.getItem("roadmap-theme");
+    if (saved === "light" || saved === "dark") themePreference = saved;
+  } catch {} // El visor también funciona si el navegador bloquea el almacenamiento.
+  function applyTheme() {
+    const dark = themePreference ? themePreference === "dark" : systemTheme.matches;
+    document.documentElement.dataset.theme = dark ? "dark" : "light";
+    $("theme-toggle").setAttribute("aria-pressed", String(dark));
+  }
+  $("theme-toggle").addEventListener("click", () => {
+    themePreference = document.documentElement.dataset.theme === "dark" ? "light" : "dark";
+    try {localStorage.setItem("roadmap-theme", themePreference);} catch {}
+    applyTheme();
+  });
+  systemTheme.addEventListener?.("change", () => {if (!themePreference) applyTheme();});
+  applyTheme();
   function colorize(node, status) {
     node.style.setProperty("--status", colors[status]);
     node.style.setProperty("--status-bg", backgrounds[status]);
@@ -333,7 +351,10 @@
     const section = element("section"); section.append(element("h3", `${title} (${ids.length})`));
     const list = element("div", undefined, "relation-list");
     ids.forEach((id) => {
-      const button = element("button", id); button.title = `${tasks.get(id).title} · ${labels[tasks.get(id).status]}`;
+      const task = tasks.get(id), button = element("button", id);
+      colorize(button, task.status);
+      button.title = `${task.title} · ${labels[task.status]}`;
+      button.setAttribute("aria-label", `${id}, ${task.title}, ${labels[task.status]}`);
       button.addEventListener("click", () => select(id, false, true)); list.append(button);
     });
     if (!ids.length) list.append(element("p", "Sin tareas con ID explícito."));
