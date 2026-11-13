@@ -18,7 +18,7 @@ Usar [el esquema común](../../.agents/skills/plan-maestro-desarrollo-sistema/re
 
 AGENTS.md y el contexto de cada tarea guían la ejecución corriente. El [flujo de trabajo](../../.agents/skills/plan-maestro-desarrollo-sistema/references/flujo-de-trabajo.md) amplía preparación, reorganización o reanudación con información insuficiente; consultar solo el procedimiento necesario. Esta carpeta conserva el único estado de las tareas, con IDs e historia; no repetirlo en decisiones, ficha o tableros.
 
-Antes de implementar cualquier tarea, incluso una corrección breve, guardarla EN_CURSO con responsable e inicio reales. Crear primero la tarea si falta; al retomar, conservar el inicio original.
+Al tomar una tarea autorizada, reservarla inmediatamente con `roadmap.py claim ID --owner "identificador único del chat"`, antes de investigar o trabajar. Crear primero la tarea si falta; al retomar una tarea PARCIAL, conservar el inicio original. Al cerrar o interrumpir, actualizar y validar el plan y liberar con `roadmap.py release ID --owner "el mismo identificador"`. La reserva coordina worktrees del mismo repositorio Git local; otros clones requieren coordinación externa.
 
 Los requisitos originales se analizan al relevar el proyecto y se trasladan a tareas con reglas y criterios suficientes. Una vez armado este plan, releer las fuentes originales solo por pedido expreso del usuario; consultar las dudas del plan sin reiniciar el relevamiento.
 

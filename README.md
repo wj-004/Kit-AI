@@ -12,7 +12,7 @@ El agente consulta las fuentes, los requisitos y el stack al comenzar cada proye
 
 La [guía del kit](kit-inicio-proyecto/README.md) explica la instalación, el formato del plan, los comandos y sus límites.
 
-Antes de implementar cualquier tarea, incluso una corrección breve, el agente debe guardarla EN_CURSO con responsable y fecha de inicio reales. El validador comprueba esos campos; la secuencia previa a la implementación es una obligación del flujo, no un bloqueo automático del editor.
+Al tomar una tarea autorizada, el agente ejecuta inmediatamente `roadmap.py claim ID --owner "identificador único del chat"`, antes de investigar o trabajar. El comando reserva la tarea y la guarda EN_CURSO; al cerrar o interrumpir, el agente actualiza y valida el plan y ejecuta `roadmap.py release ID --owner "el mismo identificador"`. La reserva coordina chats que usan worktrees del mismo repositorio Git local; clones o máquinas independientes requieren coordinación externa.
 
 La preparación lee las fuentes y arma el plan. Después, AGENTS.md y el contexto de una tarea guían la ejecución; las referencias técnicas se abren cuando hacen falta. Los requerimientos originales se releen solo por pedido expreso del usuario. Las skills de arquitectura, planificación y visor se aplican según el cambio, sin cargarlas todas para una corrección corriente. El [flujo ampliado](kit-inicio-proyecto/skills/plan-maestro-desarrollo-sistema/references/flujo-de-trabajo.md) se consulta para preparar, reorganizar o retomar con información insuficiente.
 
@@ -40,7 +40,7 @@ python3 -B .agents/skills/manage-project-roadmap/scripts/roadmap.py task INI-001
 python3 -B .agents/skills/manage-project-roadmap/scripts/roadmap.py report --status EN_CURSO --summary
 ```
 
-La consulta valida el plan completo antes de devolver una tarea con todos sus campos y resúmenes de dependencias. No escribe archivos. Los comandos anteriores siguen disponibles; --summary conserva errores y contadores sin volcar el listado. La versión 1.6.0 mantiene el esquema 1 y las rutas por stack, con una entrada breve y detalles bajo consulta. Domain conserva entidades, valores y agregados según identidad, invariantes y consistencia del modelo.
+La consulta valida el plan completo antes de devolver una tarea con todos sus campos y resúmenes de dependencias. No escribe archivos. Los comandos anteriores siguen disponibles; --summary conserva errores y contadores sin volcar el listado. La versión 1.7.0 mantiene el esquema 1 y las rutas por stack, con una entrada breve y detalles bajo consulta. Domain conserva entidades, valores y agregados según identidad, invariantes y consistencia del modelo.
 
 ## Skills incluidas
 

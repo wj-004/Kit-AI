@@ -147,8 +147,9 @@ def open_viewer(url: str) -> None:
 
 def main(argv=None) -> int:
     parser = argparse.ArgumentParser(description='Validar, consultar y visualizar el plan maestro del proyecto.')
-    parser.add_argument('command', choices=('check', 'report', 'task', 'tree', 'serve', 'open'))
-    parser.add_argument('task_id', nargs='?', help='ID obligatorio para task.')
+    parser.add_argument('command', choices=('check', 'report', 'task', 'claim', 'release', 'tree', 'serve', 'open'))
+    parser.add_argument('task_id', nargs='?', help='ID obligatorio para task, claim y release.')
+    parser.add_argument('--owner', help='Identificador único del chat responsable para claim/release.')
     parser.add_argument('--root', type=Path, default=Path.cwd(), help='Raíz del proyecto; por defecto, directorio actual.')
     parser.add_argument('--plan-dir', type=Path)
     parser.add_argument('--output', type=Path)
@@ -174,14 +175,28 @@ def main(argv=None) -> int:
             parser.error('task no admite --status, --summary ni --output: devuelve la tarea completa sin escribir archivos.')
         if args.json and args.format == 'context':
             parser.error('Usar --json o --format context, no ambos.')
+    elif args.command in {'claim', 'release'}:
+        if not args.task_id or not args.owner or args.format is not None or args.status is not None or args.summary or args.output is not None or args.json:
+            parser.error('claim/release requieren ID y --owner, sin filtros ni formatos.')
     elif args.task_id is not None or args.format is not None:
-        parser.error('El ID y --format se usan únicamente con task.')
+        parser.error('El ID se usa con task, claim o release; --format solo con task.')
+    if args.owner and args.command not in {'claim', 'release'}:
+        parser.error('--owner se usa solo con claim/release.')
     if args.summary and args.command not in {'check', 'report'}:
         parser.error('--summary se usa únicamente con check/report.')
     root = args.root.resolve()
     plan_dir = (args.plan_dir or root / 'docs/plan-maestro').resolve()
     output = (args.output or plan_dir / 'visualizacion.html').absolute()
     try:
+        if args.command in {'claim', 'release'}:
+            from roadmap_claim import reserve, release
+            if args.command == 'claim':
+                reserve(root, plan_dir, args.task_id, args.owner)
+                print(context_text(task_context(parse_plan(plan_dir), args.task_id, root, plan_dir)))
+            else:
+                release(root, plan_dir, args.task_id, args.owner)
+                print(f'Reserva liberada: {args.task_id}.')
+            return 0
         if args.command == 'task':
             report = parse_plan(plan_dir)
             try:
